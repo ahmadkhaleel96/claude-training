@@ -1,3 +1,9 @@
+@keyframes scorePop {
+  0%   { transform: scale(1.6); opacity: 0.4; }
+  60%  { transform: scale(0.92); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
 .scoreboard {
   background: var(--bg-card);
   border-radius: 10px;
@@ -39,6 +45,7 @@
 .scoreboard__value {
   font-size: 2.2rem;
   font-weight: 700;
+  animation: scorePop 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
 }
 
 .scoreboard__value--x {

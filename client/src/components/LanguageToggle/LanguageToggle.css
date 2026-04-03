@@ -1,0 +1,18 @@
+.lang-toggle {
+  padding: 0.3rem 0.75rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  background: transparent;
+  color: var(--color-text-muted);
+  border: 1.5px solid var(--border-cell);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+  white-space: nowrap;
+}
+
+.lang-toggle:hover {
+  color: var(--color-text-primary);
+  border-color: var(--color-text-muted);
+  background-color: var(--bg-cell-hover);
+}

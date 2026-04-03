@@ -1,3 +1,8 @@
+@keyframes fadeSlideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
 .status-bar {
   min-height: 2.5rem;
   display: grid;
@@ -9,6 +14,7 @@
   font-size: 1.3rem;
   font-weight: 600;
   color: var(--color-text-status);
+  animation: fadeSlideDown 0.25s ease-out forwards;
 }
 
 .status-bar__message--winner {
@@ -17,4 +23,9 @@
 
 .status-bar__message--draw {
   color: var(--color-text-draw);
+}
+
+.status-bar__message--thinking {
+  color: var(--color-text-muted);
+  font-style: italic;
 }

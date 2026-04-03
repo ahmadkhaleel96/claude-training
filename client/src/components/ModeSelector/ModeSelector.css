@@ -1,0 +1,37 @@
+.mode-selector {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  background: var(--bg-card);
+  border: 1.5px solid var(--border-cell);
+  border-radius: 8px;
+  overflow: hidden;
+  width: fit-content;
+}
+
+.mode-selector__btn {
+  padding: 0.5rem 1.25rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  background: transparent;
+  color: var(--color-text-muted);
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  white-space: nowrap;
+}
+
+.mode-selector__btn:first-child {
+  border-inline-end: 1.5px solid var(--border-cell);
+}
+
+.mode-selector__btn:hover:not(.mode-selector__btn--active) {
+  background: var(--bg-cell-hover);
+  color: var(--color-text-primary);
+}
+
+.mode-selector__btn--active {
+  background: var(--color-btn-primary);
+  color: #ffffff;
+  cursor: default;
+}

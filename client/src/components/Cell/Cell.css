@@ -1,3 +1,14 @@
+@keyframes popIn {
+  0%   { transform: scale(0.3) rotate(-12deg); opacity: 0; }
+  65%  { transform: scale(1.15) rotate(3deg); }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+@keyframes winGlow {
+  from { box-shadow: 0 0 4px rgba(241, 196, 15, 0.3); }
+  to   { box-shadow: 0 0 18px rgba(241, 196, 15, 0.85); transform: scale(1.06); }
+}
+
 .cell {
   width: 100px;
   height: 100px;
@@ -8,7 +19,7 @@
   border-radius: 6px;
   cursor: pointer;
   color: var(--color-text-primary);
-  transition: background-color 0.15s ease, transform 0.1s ease, border-color 0.25s ease;
+  transition: background-color 0.15s ease, border-color 0.25s ease;
 }
 
 .cell:hover:not(:disabled) {
@@ -22,13 +33,16 @@
 
 .cell--x {
   color: var(--color-x);
+  animation: popIn 0.22s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
 }
 
 .cell--o {
   color: var(--color-o);
+  animation: popIn 0.22s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
 }
 
 .cell--winning {
   background-color: var(--bg-cell-winning);
   border-color: var(--border-cell-winning);
+  animation: winGlow 0.75s ease-in-out infinite alternate;
 }

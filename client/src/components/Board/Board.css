@@ -1,6 +1,12 @@
+@keyframes boardFadeIn {
+  from { opacity: 0; transform: scale(0.92); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
 .board {
   display: grid;
   grid-template-columns: repeat(3, 100px);
   grid-template-rows: repeat(3, 100px);
   gap: 6px;
+  animation: boardFadeIn 0.3s ease-out forwards;
 }

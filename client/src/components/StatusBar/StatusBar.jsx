@@ -1,22 +1,30 @@
+import { useTranslations } from '../../context/LanguageContext';
 import './StatusBar.css';
 
-function StatusBar({ currentPlayer, winner, isDraw }) {
+function StatusBar({ currentPlayer, winner, isDraw, isComputerThinking }) {
+  const { t } = useTranslations();
+
   let message;
   let modifier = '';
 
   if (winner) {
-    message = `Player ${winner} wins!`;
+    message = t.playerWins(winner);
     modifier = 'status-bar__message--winner';
   } else if (isDraw) {
-    message = "It's a draw!";
+    message = t.draw;
     modifier = 'status-bar__message--draw';
+  } else if (isComputerThinking) {
+    message = t.computerTurn;
+    modifier = 'status-bar__message--thinking';
   } else {
-    message = `Player ${currentPlayer}'s turn`;
+    message = t.playerTurn(currentPlayer);
   }
 
   return (
     <div className="status-bar">
-      <p className={`status-bar__message ${modifier}`}>{message}</p>
+      <p key={message} className={`status-bar__message ${modifier}`}>
+        {message}
+      </p>
     </div>
   );
 }
