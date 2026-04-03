@@ -1,0 +1,20 @@
+.status-bar {
+  min-height: 2.5rem;
+  display: grid;
+  place-items: center;
+  margin-bottom: 1rem;
+}
+
+.status-bar__message {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--color-text-status);
+}
+
+.status-bar__message--winner {
+  color: var(--color-text-winner);
+}
+
+.status-bar__message--draw {
+  color: var(--color-text-draw);
+}

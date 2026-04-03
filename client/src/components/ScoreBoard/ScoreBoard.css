@@ -1,0 +1,70 @@
+.scoreboard {
+  background: var(--bg-card);
+  border-radius: 10px;
+  box-shadow: var(--shadow-card);
+  padding: 1.5rem 2rem;
+  text-align: center;
+  min-width: 280px;
+  transition: background-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.scoreboard__title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-bottom: 1.2rem;
+}
+
+.scoreboard__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  margin-bottom: 1.4rem;
+}
+
+.scoreboard__item {
+  display: grid;
+  justify-items: center;
+  gap: 0.3rem;
+}
+
+.scoreboard__label {
+  font-size: 0.8rem;
+  color: var(--color-text-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.scoreboard__value {
+  font-size: 2.2rem;
+  font-weight: 700;
+}
+
+.scoreboard__value--x {
+  color: var(--color-x);
+}
+
+.scoreboard__value--o {
+  color: var(--color-o);
+}
+
+.scoreboard__value--draw {
+  color: var(--color-draws);
+}
+
+.scoreboard__reset {
+  padding: 0.35rem 1rem;
+  font-size: 0.8rem;
+  background: transparent;
+  color: var(--color-text-btn-reset);
+  border: 1px solid var(--border-btn-reset);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.scoreboard__reset:hover {
+  background-color: var(--bg-btn-reset-hover);
+  color: var(--color-text-btn-reset-hover);
+}

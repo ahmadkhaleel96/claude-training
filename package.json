@@ -1,0 +1,23 @@
+{
+  "name": "tic-tac-toe",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "node server/index.js",
+    "client": "cd client && npm run dev",
+    "install:all": "npm install && cd client && npm install",
+    "test": "npm run test:server && npm run test:client",
+    "test:server": "jest server",
+    "test:client": "cd client && npm test"
+  },
+  "dependencies": {
+    "concurrently": "^8.2.2",
+    "cors": "^2.8.5",
+    "express": "^4.18.2"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "supertest": "^6.3.4"
+  }
+}
