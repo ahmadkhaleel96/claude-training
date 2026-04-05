@@ -23,8 +23,10 @@ vi.mock('./hooks/useLanguage', () => ({
 vi.mock('./hooks/useAuth', () => ({
   useAuth: () => ({
     username: null,
+    token: null,
     showModal: false,
-    setUsername: vi.fn(),
+    login: vi.fn(),
+    register: vi.fn(),
     continueAsGuest: vi.fn(),
     openModal: mockOpenModal,
     logout: vi.fn(),

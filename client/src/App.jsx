@@ -25,7 +25,7 @@ function getInitialRoomId() {
 function App() {
   const { theme, toggleTheme } = useTheme();
   const { lang, toggleLanguage } = useLanguage();
-  const { username, showModal, setUsername, continueAsGuest, openModal } = useAuth();
+  const { username, token, showModal, login, register, continueAsGuest, openModal, logout } = useAuth();
   const t = translations[lang];
 
   const [scores, setScores] = useState({ X: 0, O: 0, draws: 0 });
@@ -47,19 +47,15 @@ function App() {
 
   const handleGameEnd = useCallback(
     (winner) => {
-      const users =
-        mode === 'pvf'
-          ? { X: null, O: null }
-          : { X: username, O: null };
-
-      postScore(winner, users)
+      const options = mode !== 'pvf' && token ? { token, symbol: 'X' } : {};
+      postScore(winner, options)
         .then((updated) => {
           setScores(updated);
           if (username) refreshLeaderboard();
         })
         .catch(console.error);
     },
-    [mode, username, refreshLeaderboard]
+    [mode, token, username, refreshLeaderboard]
   );
 
   const handleResetScores = useCallback(() => {
@@ -67,10 +63,10 @@ function App() {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ username, openModal, logout: continueAsGuest }}>
+    <AuthContext.Provider value={{ username, openModal, logout }}>
       <LanguageContext.Provider value={{ t, lang }}>
         {showModal && (
-          <AuthModal onSetUsername={setUsername} onGuest={continueAsGuest} />
+          <AuthModal onLogin={login} onRegister={register} onGuest={continueAsGuest} />
         )}
         <div className="app">
           <header className="app__header">

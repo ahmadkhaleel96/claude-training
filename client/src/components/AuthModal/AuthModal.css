@@ -87,6 +87,29 @@
   border-color: var(--color-btn-primary-hover);
 }
 
+.auth-modal__error {
+  color: var(--color-danger, #e53e3e);
+  font-size: 0.85rem;
+  text-align: center;
+  margin: 0;
+}
+
+.auth-modal__btn--link {
+  background: none;
+  border-color: transparent;
+  color: var(--color-btn-primary);
+  font-size: 0.85rem;
+  text-decoration: underline;
+  padding: 0.25rem;
+  width: auto;
+}
+
+.auth-modal__btn--link:hover:not(:disabled) {
+  background: none;
+  border-color: transparent;
+  color: var(--color-btn-primary-hover);
+}
+
 .auth-modal__divider {
   color: var(--color-text-muted);
   font-size: 0.85rem;

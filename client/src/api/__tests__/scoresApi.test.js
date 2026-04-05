@@ -39,6 +39,16 @@ describe('postScore', () => {
     expect(result).toEqual(mockScores);
   });
 
+  it('spreads options into the request body', async () => {
+    mockFetch(mockScores);
+    await postScore('X', { token: 'tok', symbol: 'X' });
+    expect(fetch).toHaveBeenCalledWith('/api/scores', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ winner: 'X', token: 'tok', symbol: 'X' }),
+    });
+  });
+
   it('throws when the response is not ok', async () => {
     mockFetch({}, false);
     await expect(postScore('X')).rejects.toThrow('Failed to save score');
