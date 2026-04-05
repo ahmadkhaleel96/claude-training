@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import Game from './components/Game/Game';
+import OnlineGame from './components/OnlineGame/OnlineGame';
 import ScoreBoard from './components/ScoreBoard/ScoreBoard';
 import ThemeToggle from './components/ThemeToggle/ThemeToggle';
 import LanguageToggle from './components/LanguageToggle/LanguageToggle';
@@ -11,13 +12,18 @@ import { translations } from './i18n/translations';
 import { fetchScores, postScore, resetScores } from './api/scoresApi';
 import './App.css';
 
+function getInitialRoomId() {
+  return new URLSearchParams(window.location.search).get('room');
+}
+
 function App() {
   const { theme, toggleTheme } = useTheme();
   const { lang, toggleLanguage } = useLanguage();
   const t = translations[lang];
 
   const [scores, setScores] = useState({ X: 0, O: 0, draws: 0 });
-  const [mode, setMode] = useState('pvp');
+  const [initialRoomId] = useState(getInitialRoomId);
+  const [mode, setMode] = useState(initialRoomId ? 'pvf' : 'pvp');
 
   useEffect(() => {
     fetchScores()
@@ -53,7 +59,15 @@ function App() {
           <ModeSelector mode={mode} onModeChange={setMode} />
         </div>
         <div className="app__content">
-          <Game key={mode} mode={mode} onGameEnd={handleGameEnd} />
+          {mode === 'pvf' ? (
+            <OnlineGame
+              key="pvf"
+              initialRoomId={initialRoomId}
+              onGameEnd={handleGameEnd}
+            />
+          ) : (
+            <Game key={mode} mode={mode} onGameEnd={handleGameEnd} />
+          )}
           <ScoreBoard scores={scores} onReset={handleResetScores} />
         </div>
       </div>

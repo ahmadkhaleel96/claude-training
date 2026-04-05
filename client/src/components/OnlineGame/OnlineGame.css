@@ -1,0 +1,128 @@
+.online-game {
+  display: grid;
+  gap: 1rem;
+  justify-items: center;
+  width: 100%;
+}
+
+.online-game--lobby,
+.online-game--waiting,
+.online-game--disconnected {
+  max-width: 360px;
+  margin: 0 auto;
+  padding: 1.5rem;
+  background: var(--bg-card);
+  border-radius: 1rem;
+  box-shadow: var(--shadow-card);
+}
+
+/* Lobby */
+
+.online-game__btn {
+  padding: 0.6rem 1.4rem;
+  border: 2px solid var(--color-border);
+  border-radius: 0.5rem;
+  background: var(--bg-cell);
+  color: var(--color-text);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.online-game__btn:hover:not(:disabled) {
+  background: var(--bg-cell-hover, var(--bg-page));
+}
+
+.online-game__btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.online-game__btn--primary {
+  background: var(--color-x);
+  border-color: var(--color-x);
+  color: #fff;
+}
+
+.online-game__btn--primary:hover:not(:disabled) {
+  filter: brightness(1.1);
+}
+
+.online-game__divider {
+  color: var(--color-text-muted, var(--color-text));
+  opacity: 0.6;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.online-game__join {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.online-game__input {
+  padding: 0.5rem 0.75rem;
+  border: 2px solid var(--color-border);
+  border-radius: 0.5rem;
+  background: var(--bg-page);
+  color: var(--color-text);
+  font-size: 1rem;
+  width: 100%;
+}
+
+.online-game__input:focus {
+  outline: none;
+  border-color: var(--color-x);
+}
+
+.online-game__error {
+  color: #e74c3c;
+  font-size: 0.9rem;
+  text-align: center;
+  margin: 0;
+}
+
+/* Waiting */
+
+.online-game__waiting-text {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--color-text);
+  text-align: center;
+  margin: 0;
+}
+
+.online-game__symbol {
+  font-size: 1rem;
+  color: var(--color-text);
+  margin: 0;
+  text-align: center;
+}
+
+.online-game__share {
+  width: 100%;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.online-game__share-label {
+  font-size: 0.9rem;
+  color: var(--color-text);
+  margin: 0;
+  text-align: center;
+}
+
+.online-game__share-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.5rem;
+}
+
+.online-game__input--link {
+  font-size: 0.8rem;
+  cursor: text;
+}

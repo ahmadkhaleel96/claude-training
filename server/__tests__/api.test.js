@@ -3,7 +3,7 @@ const fs = require('fs');
 
 jest.mock('fs');
 
-const app = require('../index');
+const app = require('../app');
 
 const DEFAULT_SCORES = { X: 0, O: 0, draws: 0 };
 

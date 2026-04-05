@@ -20,6 +20,13 @@ function ModeSelector({ mode, onModeChange }) {
       >
         {t.playerVsComputer}
       </button>
+      <button
+        className={`mode-selector__btn ${mode === 'pvf' ? 'mode-selector__btn--active' : ''}`}
+        onClick={() => onModeChange('pvf')}
+        aria-pressed={mode === 'pvf'}
+      >
+        {t.playerVsFriend}
+      </button>
     </div>
   );
 }

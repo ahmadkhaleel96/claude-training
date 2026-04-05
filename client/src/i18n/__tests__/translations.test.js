@@ -17,6 +17,17 @@ const REQUIRED_KEYS = [
   'playerVsPlayer',
   'playerVsComputer',
   'computerTurn',
+  'playerVsFriend',
+  'createRoom',
+  'joinRoom',
+  'or',
+  'enterRoomCode',
+  'waitingForOpponent',
+  'yourSymbol',
+  'shareLink',
+  'roomLink',
+  'copyLink',
+  'opponentDisconnected',
 ];
 
 describe('translations shape', () => {
