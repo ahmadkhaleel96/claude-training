@@ -27,6 +27,23 @@ export const translations = {
     roomLink: 'Room link',
     copyLink: 'Copy',
     opponentDisconnected: 'Opponent disconnected.',
+    // Auth
+    chooseHowToPlay: 'How would you like to play?',
+    authModalSubtitle: 'Enter a username to track your score on the leaderboard.',
+    enterUsername: 'Enter username',
+    playWithUsername: 'Play',
+    continueAsGuest: 'Continue as Guest',
+    playingAsGuest: 'Guest',
+    changeUser: 'Change',
+    signIn: 'Sign In',
+    // Hint
+    hint: 'Hint',
+    // Leaderboard
+    leaderboard: 'Leaderboard',
+    player: 'Player',
+    wins: 'Wins',
+    losses: 'Losses',
+    noLeaderboardData: 'No players yet — be the first!',
   },
   ar: {
     title: 'إكس أو',
@@ -56,5 +73,22 @@ export const translations = {
     roomLink: 'رابط الغرفة',
     copyLink: 'نسخ',
     opponentDisconnected: 'قطع الخصم الاتصال.',
+    // Auth
+    chooseHowToPlay: 'كيف تريد أن تلعب؟',
+    authModalSubtitle: 'أدخل اسم لاعب لتتبع نتيجتك في لوحة الصدارة.',
+    enterUsername: 'أدخل اسم اللاعب',
+    playWithUsername: 'العب',
+    continueAsGuest: 'العب كضيف',
+    playingAsGuest: 'ضيف',
+    changeUser: 'تغيير',
+    signIn: 'تسجيل',
+    // Hint
+    hint: 'تلميح',
+    // Leaderboard
+    leaderboard: 'لوحة الصدارة',
+    player: 'اللاعب',
+    wins: 'انتصارات',
+    losses: 'خسارات',
+    noLeaderboardData: 'لا يوجد لاعبون بعد — كن الأول!',
   },
 };

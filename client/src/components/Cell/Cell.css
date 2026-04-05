@@ -9,6 +9,11 @@
   to   { box-shadow: 0 0 18px rgba(241, 196, 15, 0.85); transform: scale(1.06); }
 }
 
+@keyframes hintPulse {
+  0%, 100% { border-color: var(--color-btn-primary); box-shadow: 0 0 4px rgba(52, 152, 219, 0.35); }
+  50%       { border-color: var(--color-btn-primary); box-shadow: 0 0 14px rgba(52, 152, 219, 0.75); transform: scale(1.03); }
+}
+
 .cell {
   width: 100px;
   height: 100px;
@@ -45,4 +50,8 @@
   background-color: var(--bg-cell-winning);
   border-color: var(--border-cell-winning);
   animation: winGlow 0.75s ease-in-out infinite alternate;
+}
+
+.cell--hint {
+  animation: hintPulse 1.1s ease-in-out infinite;
 }

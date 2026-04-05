@@ -28,6 +28,19 @@ const REQUIRED_KEYS = [
   'roomLink',
   'copyLink',
   'opponentDisconnected',
+  'chooseHowToPlay',
+  'enterUsername',
+  'playWithUsername',
+  'continueAsGuest',
+  'playingAsGuest',
+  'changeUser',
+  'signIn',
+  'hint',
+  'leaderboard',
+  'player',
+  'wins',
+  'losses',
+  'noLeaderboardData',
 ];
 
 describe('translations shape', () => {

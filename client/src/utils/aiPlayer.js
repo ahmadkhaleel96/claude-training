@@ -60,3 +60,16 @@ export function getBestMove(board) {
 
   return bestMove;
 }
+
+/**
+ * Returns the best move index for the given player ('X' or 'O').
+ * For O, delegates to getBestMove. For X, flips the board so minimax
+ * evaluates from X's perspective.
+ */
+export function getBestMoveForPlayer(board, player) {
+  if (player === 'O') return getBestMove(board);
+  const flipped = board.map((cell) =>
+    cell === 'X' ? 'O' : cell === 'O' ? 'X' : null
+  );
+  return getBestMove(flipped);
+}

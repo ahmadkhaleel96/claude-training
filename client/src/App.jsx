@@ -5,11 +5,17 @@ import ScoreBoard from './components/ScoreBoard/ScoreBoard';
 import ThemeToggle from './components/ThemeToggle/ThemeToggle';
 import LanguageToggle from './components/LanguageToggle/LanguageToggle';
 import ModeSelector from './components/ModeSelector/ModeSelector';
+import AuthModal from './components/AuthModal/AuthModal';
+import Leaderboard from './components/Leaderboard/Leaderboard';
+import UserBadge from './components/UserBadge/UserBadge';
 import { useTheme } from './hooks/useTheme';
 import { useLanguage } from './hooks/useLanguage';
+import { useAuth } from './hooks/useAuth';
 import { LanguageContext } from './context/LanguageContext';
+import { AuthContext } from './context/AuthContext';
 import { translations } from './i18n/translations';
 import { fetchScores, postScore, resetScores } from './api/scoresApi';
+import { fetchLeaderboard } from './api/leaderboardApi';
 import './App.css';
 
 function getInitialRoomId() {
@@ -19,59 +25,88 @@ function getInitialRoomId() {
 function App() {
   const { theme, toggleTheme } = useTheme();
   const { lang, toggleLanguage } = useLanguage();
+  const { username, showModal, setUsername, continueAsGuest, openModal } = useAuth();
   const t = translations[lang];
 
   const [scores, setScores] = useState({ X: 0, O: 0, draws: 0 });
+  const [leaderboard, setLeaderboard] = useState([]);
   const [initialRoomId] = useState(getInitialRoomId);
   const [mode, setMode] = useState(initialRoomId ? 'pvf' : 'pvp');
 
   useEffect(() => {
-    fetchScores()
-      .then(setScores)
-      .catch(console.error);
+    fetchScores().then(setScores).catch(console.error);
   }, []);
 
-  const handleGameEnd = useCallback((winner) => {
-    postScore(winner)
-      .then(setScores)
-      .catch(console.error);
+  const refreshLeaderboard = useCallback(() => {
+    fetchLeaderboard().then(setLeaderboard).catch(console.error);
   }, []);
+
+  useEffect(() => {
+    refreshLeaderboard();
+  }, [refreshLeaderboard]);
+
+  const handleGameEnd = useCallback(
+    (winner) => {
+      const users =
+        mode === 'pvf'
+          ? { X: null, O: null }
+          : { X: username, O: null };
+
+      postScore(winner, users)
+        .then((updated) => {
+          setScores(updated);
+          if (username) refreshLeaderboard();
+        })
+        .catch(console.error);
+    },
+    [mode, username, refreshLeaderboard]
+  );
 
   const handleResetScores = useCallback(() => {
-    resetScores()
-      .then(setScores)
-      .catch(console.error);
+    resetScores().then(setScores).catch(console.error);
   }, []);
 
   return (
-    <LanguageContext.Provider value={{ t, lang }}>
-      <div className="app">
-        <header className="app__header">
-          <div className="app__lang">
-            <LanguageToggle lang={lang} onToggle={toggleLanguage} />
+    <AuthContext.Provider value={{ username, openModal, logout: continueAsGuest }}>
+      <LanguageContext.Provider value={{ t, lang }}>
+        {showModal && (
+          <AuthModal onSetUsername={setUsername} onGuest={continueAsGuest} />
+        )}
+        <div className="app">
+          <header className="app__header">
+            <div className="app__lang">
+              <LanguageToggle lang={lang} onToggle={toggleLanguage} />
+            </div>
+            <h1 className="app__title">{t.title}</h1>
+            <div className="app__toggle">
+              <ThemeToggle theme={theme} onToggle={toggleTheme} />
+            </div>
+          </header>
+
+          <div className="app__user-bar">
+            <UserBadge username={username} onChangeUser={openModal} />
           </div>
-          <h1 className="app__title">{t.title}</h1>
-          <div className="app__toggle">
-            <ThemeToggle theme={theme} onToggle={toggleTheme} />
+
+          <div className="app__modes">
+            <ModeSelector mode={mode} onModeChange={setMode} />
           </div>
-        </header>
-        <div className="app__modes">
-          <ModeSelector mode={mode} onModeChange={setMode} />
+
+          <div className="app__content">
+            {mode === 'pvf' ? (
+              <OnlineGame
+                key="pvf"
+                initialRoomId={initialRoomId}
+                onGameEnd={handleGameEnd}
+              />
+            ) : (
+              <Game key={mode} mode={mode} onGameEnd={handleGameEnd} />
+            )}
+            <ScoreBoard scores={scores} onReset={handleResetScores} />
+            <Leaderboard entries={leaderboard} />
+          </div>
         </div>
-        <div className="app__content">
-          {mode === 'pvf' ? (
-            <OnlineGame
-              key="pvf"
-              initialRoomId={initialRoomId}
-              onGameEnd={handleGameEnd}
-            />
-          ) : (
-            <Game key={mode} mode={mode} onGameEnd={handleGameEnd} />
-          )}
-          <ScoreBoard scores={scores} onReset={handleResetScores} />
-        </div>
-      </div>
-    </LanguageContext.Provider>
+      </LanguageContext.Provider>
+    </AuthContext.Provider>
   );
 }
 

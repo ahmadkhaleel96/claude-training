@@ -1,12 +1,13 @@
 import './Cell.css';
 
-function Cell({ value, onClick, isWinning }) {
+function Cell({ value, onClick, isWinning, isHint }) {
   return (
     <button
       className={[
         'cell',
         value ? `cell--${value.toLowerCase()}` : '',
         isWinning ? 'cell--winning' : '',
+        isHint ? 'cell--hint' : '',
       ]
         .filter(Boolean)
         .join(' ')}

@@ -1,6 +1,7 @@
 import { render, screen, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { LanguageContext } from '../../../context/LanguageContext';
+import { AuthContext } from '../../../context/AuthContext';
 import { translations } from '../../../i18n/translations';
 import Game from '../Game';
 
@@ -18,19 +19,25 @@ vi.mock('../../../hooks/useSoundEffects', () => ({
   }),
 }));
 
-// getBestMove always returns cell 8 so PvC tests are deterministic
 vi.mock('../../../utils/aiPlayer', () => ({
   getBestMove: vi.fn(() => 8),
+  getBestMoveForPlayer: vi.fn(() => 4),
 }));
 
 // --- helpers ---
 
-function renderGame(props = {}) {
+function renderGame(props = {}, authValue = { username: null, openModal: vi.fn(), logout: vi.fn() }) {
   return render(
-    <LanguageContext.Provider value={{ t: translations.en, lang: 'en' }}>
-      <Game onGameEnd={() => {}} {...props} />
-    </LanguageContext.Provider>
+    <AuthContext.Provider value={authValue}>
+      <LanguageContext.Provider value={{ t: translations.en, lang: 'en' }}>
+        <Game onGameEnd={() => {}} {...props} />
+      </LanguageContext.Provider>
+    </AuthContext.Provider>
   );
+}
+
+function renderGameSignedIn(props = {}, username = 'alice') {
+  return renderGame(props, { username, openModal: vi.fn(), logout: vi.fn() });
 }
 
 afterEach(() => {
@@ -156,6 +163,66 @@ describe('Game — PvP sounds', () => {
   });
 });
 
+// ─── Hint ────────────────────────────────────────────────────────────────────
+
+describe('Game — hint', () => {
+  it('does not show hint button for guests', () => {
+    renderGame(); // username: null
+    expect(screen.queryByRole('button', { name: /hint/i })).not.toBeInTheDocument();
+  });
+
+  it('shows hint button for signed-in users in PvP mode', () => {
+    renderGameSignedIn();
+    expect(screen.getByRole('button', { name: /hint/i })).toBeInTheDocument();
+  });
+
+  it('does not show hint button in pvf mode for signed-in users', () => {
+    renderGameSignedIn({ mode: 'pvf' });
+    expect(screen.queryByRole('button', { name: /hint/i })).not.toBeInTheDocument();
+  });
+
+  it('calls getBestMoveForPlayer and highlights the suggested cell on hint click', async () => {
+    const { getBestMoveForPlayer } = await import('../../../utils/aiPlayer');
+    getBestMoveForPlayer.mockReturnValue(4);
+
+    renderGameSignedIn();
+    await userEvent.click(screen.getByRole('button', { name: /hint/i }));
+
+    expect(getBestMoveForPlayer).toHaveBeenCalled();
+    // Cell at index 4 should now have the hint class
+    const cells = screen.getAllByRole('button', { name: /empty cell/i });
+    expect(cells[4]).toHaveClass('cell--hint');
+  });
+
+  it('clears the hint when a move is made', async () => {
+    const { getBestMoveForPlayer } = await import('../../../utils/aiPlayer');
+    getBestMoveForPlayer.mockReturnValue(4);
+
+    renderGameSignedIn();
+    await userEvent.click(screen.getByRole('button', { name: /hint/i }));
+
+    const cells = screen.getAllByRole('button', { name: /empty cell/i });
+    expect(cells[4]).toHaveClass('cell--hint');
+
+    await userEvent.click(cells[0]); // make a move
+    // After the move, no cells should have the hint class
+    const allButtons = screen.getAllByRole('button');
+    expect(allButtons.some((b) => b.classList.contains('cell--hint'))).toBe(false);
+  });
+
+  it('hides hint button when game is over', async () => {
+    renderGameSignedIn();
+    const cells = screen.getAllByRole('button');
+    await userEvent.click(cells[0]);
+    await userEvent.click(cells[3]);
+    await userEvent.click(cells[1]);
+    await userEvent.click(cells[4]);
+    await userEvent.click(cells[2]); // X wins
+
+    expect(screen.queryByRole('button', { name: /hint/i })).not.toBeInTheDocument();
+  });
+});
+
 // ─── PvC ────────────────────────────────────────────────────────────────────
 
 describe('Game — PvC', () => {
@@ -210,20 +277,12 @@ describe('Game — PvC', () => {
 
   it('calls onGameEnd with O wins when computer wins', async () => {
     const { getBestMove } = await import('../../../utils/aiPlayer');
-    // Set up a near-win for O: O at 0 and 3, needs 6
-    // X at 1, 2. We'll drive the computer to win.
-    getBestMove
-      .mockReturnValueOnce(6); // computer's winning move
+    getBestMove.mockReturnValueOnce(6);
 
     const onGameEnd = vi.fn();
-    // Board: X:1,2 O:0,3 → O needs 6 to win col 0,3,6
-    // We'll set up state by having X play first then let computer respond
     const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime.bind(vi) });
     renderPvC({ onGameEnd });
 
-    // Manually bring board to: O:0,3 X:1,2 by playing moves in sequence
-    // But since computer always gets the mocked cell, let's just drive two rounds
-    // Round 1: X plays 1, O plays first mock (6)
     getBestMove.mockReturnValueOnce(0); // O plays 0
     await user.click(screen.getAllByRole('button')[1]); // X plays 1
     await act(() => vi.advanceTimersByTime(600)); // O plays 0

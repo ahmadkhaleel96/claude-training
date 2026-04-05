@@ -2,12 +2,15 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import App from './App';
 import * as scoresApi from './api/scoresApi';
+import * as leaderboardApi from './api/leaderboardApi';
 import { translations } from './i18n/translations';
 
 const mockToggleTheme = vi.fn();
 const mockToggleLanguage = vi.fn();
+const mockOpenModal = vi.fn();
 
 vi.mock('./api/scoresApi');
+vi.mock('./api/leaderboardApi');
 
 vi.mock('./hooks/useTheme', () => ({
   useTheme: () => ({ theme: 'light', toggleTheme: mockToggleTheme }),
@@ -15,6 +18,17 @@ vi.mock('./hooks/useTheme', () => ({
 
 vi.mock('./hooks/useLanguage', () => ({
   useLanguage: () => ({ lang: 'en', toggleLanguage: mockToggleLanguage }),
+}));
+
+vi.mock('./hooks/useAuth', () => ({
+  useAuth: () => ({
+    username: null,
+    showModal: false,
+    setUsername: vi.fn(),
+    continueAsGuest: vi.fn(),
+    openModal: mockOpenModal,
+    logout: vi.fn(),
+  }),
 }));
 
 vi.mock('./hooks/useSoundEffects', () => ({
@@ -27,6 +41,7 @@ vi.mock('./hooks/useSoundEffects', () => ({
 
 vi.mock('./utils/aiPlayer', () => ({
   getBestMove: vi.fn(() => 8),
+  getBestMoveForPlayer: vi.fn(() => 4),
 }));
 
 vi.mock('./hooks/useOnlineGame', () => ({
@@ -54,7 +69,7 @@ beforeEach(() => {
   scoresApi.fetchScores.mockResolvedValue(defaultScores);
   scoresApi.postScore.mockResolvedValue({ X: 1, O: 0, draws: 0 });
   scoresApi.resetScores.mockResolvedValue(defaultScores);
-  // Default: no room param in URL
+  leaderboardApi.fetchLeaderboard.mockResolvedValue([]);
   Object.defineProperty(window, 'location', {
     value: { search: '', origin: 'http://localhost', pathname: '/' },
     writable: true,
@@ -76,15 +91,14 @@ describe('App — scores', () => {
     render(<App />);
     await waitFor(() => expect(scoresApi.fetchScores).toHaveBeenCalled());
 
-    // Get board cells specifically (avoids fragility with mode selector button count)
     const cells = screen.getAllByRole('button', { name: /empty cell/i });
     await userEvent.click(cells[0]); // X → 0
     await userEvent.click(cells[3]); // O → 3
     await userEvent.click(cells[1]); // X → 1
     await userEvent.click(cells[4]); // O → 4
-    await userEvent.click(cells[2]); // X wins (row 0-1-2)
+    await userEvent.click(cells[2]); // X wins
 
-    await waitFor(() => expect(scoresApi.postScore).toHaveBeenCalledWith('X'));
+    await waitFor(() => expect(scoresApi.postScore).toHaveBeenCalledWith('X', expect.any(Object)));
   });
 
   it('calls resetScores when Reset Scores is clicked', async () => {
@@ -92,6 +106,26 @@ describe('App — scores', () => {
     await waitFor(() => expect(scoresApi.fetchScores).toHaveBeenCalled());
     await userEvent.click(screen.getByRole('button', { name: /reset scores/i }));
     expect(scoresApi.resetScores).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('App — leaderboard', () => {
+  it('fetches leaderboard on mount', async () => {
+    render(<App />);
+    await waitFor(() => expect(leaderboardApi.fetchLeaderboard).toHaveBeenCalled());
+  });
+
+  it('renders the Leaderboard component', async () => {
+    render(<App />);
+    await waitFor(() => expect(screen.getByText(translations.en.leaderboard)).toBeInTheDocument());
+  });
+
+  it('displays leaderboard entries', async () => {
+    leaderboardApi.fetchLeaderboard.mockResolvedValue([
+      { username: 'alice', wins: 5, losses: 1, draws: 2 },
+    ]);
+    render(<App />);
+    await waitFor(() => expect(screen.getByText('alice')).toBeInTheDocument());
   });
 });
 
@@ -121,6 +155,19 @@ describe('App — header controls', () => {
     render(<App />);
     await userEvent.click(screen.getByRole('button', { name: /switch to arabic/i }));
     expect(mockToggleLanguage).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('App — user badge', () => {
+  it('renders the UserBadge', () => {
+    render(<App />);
+    expect(screen.getByText(translations.en.playingAsGuest)).toBeInTheDocument();
+  });
+
+  it('calls openModal when the Sign In button is clicked', async () => {
+    render(<App />);
+    await userEvent.click(screen.getByRole('button', { name: translations.en.signIn }));
+    expect(mockOpenModal).toHaveBeenCalledTimes(1);
   });
 });
 

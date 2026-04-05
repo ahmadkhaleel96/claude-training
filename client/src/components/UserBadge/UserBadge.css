@@ -1,0 +1,34 @@
+.user-badge {
+  display: grid;
+  grid-template-columns: auto auto;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.user-badge__name {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.user-badge__btn {
+  padding: 0.25rem 0.65rem;
+  border: 1.5px solid var(--color-btn-primary);
+  border-radius: 0.4rem;
+  background: transparent;
+  color: var(--color-btn-primary);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+
+.user-badge__btn:hover {
+  background: var(--color-btn-primary);
+  color: #fff;
+}

@@ -1,4 +1,4 @@
-import { getBestMove } from '../aiPlayer';
+import { getBestMove, getBestMoveForPlayer } from '../aiPlayer';
 import { calculateWinner } from '../gameLogic';
 
 describe('getBestMove', () => {
@@ -51,8 +51,6 @@ describe('getBestMove', () => {
   });
 
   it('O never loses against any X opening move', () => {
-    // For each possible X opening, let O play minimax and X play greedily.
-    // Tic-Tac-Toe with optimal play always ends in draw or O win — never O loss.
     for (let opening = 0; opening < 9; opening++) {
       const board = Array(9).fill(null);
       board[opening] = 'X';
@@ -75,5 +73,36 @@ describe('getBestMove', () => {
       const result = calculateWinner(board);
       expect(result?.winner).not.toBe('X');
     }
+  });
+});
+
+describe('getBestMoveForPlayer', () => {
+  it('returns the same result as getBestMove when player is O', () => {
+    const board = ['O', 'O', null, 'X', 'X', null, null, null, null];
+    expect(getBestMoveForPlayer(board, 'O')).toBe(getBestMove(board));
+  });
+
+  it('takes an immediate winning move for X', () => {
+    // X: 0, 1 — wins at 2
+    const board = ['X', 'X', null, 'O', 'O', null, null, null, null];
+    expect(getBestMoveForPlayer(board, 'X')).toBe(2);
+  });
+
+  it('blocks O from winning immediately when playing as X', () => {
+    // O: 3, 4 — would win at 5; X should block at 5
+    const board = ['X', null, null, 'O', 'O', null, null, null, null];
+    expect(getBestMoveForPlayer(board, 'X')).toBe(5);
+  });
+
+  it('does not mutate the original board', () => {
+    const board = Array(9).fill(null);
+    const snapshot = [...board];
+    getBestMoveForPlayer(board, 'X');
+    expect(board).toEqual(snapshot);
+  });
+
+  it('returns -1 on a full board for X', () => {
+    const board = ['X', 'O', 'X', 'O', 'X', 'O', 'O', 'X', 'O'];
+    expect(getBestMoveForPlayer(board, 'X')).toBe(-1);
   });
 });

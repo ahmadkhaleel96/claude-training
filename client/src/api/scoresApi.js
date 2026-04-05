@@ -6,11 +6,12 @@ export async function fetchScores() {
   return res.json();
 }
 
-export async function postScore(winner) {
+export async function postScore(winner, users = null) {
+  const body = users ? { winner, users } : { winner };
   const res = await fetch(BASE, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ winner }),
+    body: JSON.stringify(body),
   });
   if (!res.ok) throw new Error('Failed to save score');
   return res.json();

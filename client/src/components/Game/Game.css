@@ -1,4 +1,31 @@
 .game {
   display: grid;
   justify-items: center;
+  gap: 0;
+}
+
+.game__actions {
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 0.75rem;
+  align-items: center;
+  justify-content: center;
+  margin-top: 0.25rem;
+}
+
+.game__hint-btn {
+  padding: 0.45rem 1rem;
+  background: var(--bg-cell);
+  border: 2px solid var(--color-btn-primary);
+  border-radius: 0.5rem;
+  color: var(--color-btn-primary);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.game__hint-btn:hover {
+  background: var(--color-btn-primary);
+  color: #fff;
 }
