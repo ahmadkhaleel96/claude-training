@@ -1,32 +1,31 @@
 const request = require('supertest');
-const fs = require('fs');
 
-jest.mock('fs');
+jest.mock('../store', () => ({
+  getScores: jest.fn(),
+  updateScores: jest.fn(),
+  updateLeaderboard: jest.fn(),
+  getUser: jest.fn(),
+  createUser: jest.fn(),
+}));
 jest.mock('../auth');
 
-const { hashPassword, comparePassword, signToken } = require('../auth');
+const store = require('../store');
+const { hashPassword, comparePassword, signToken, verifyToken } = require('../auth');
 const app = require('../app');
 
-const EMPTY_USERS = {};
 const DEFAULT_SCORES = { X: 0, O: 0, draws: 0 };
 
 beforeEach(() => {
-  fs.existsSync.mockReturnValue(true);
-  fs.readFileSync.mockImplementation((filePath) => {
-    if (filePath.includes('users.json')) return JSON.stringify(EMPTY_USERS);
-    if (filePath.includes('scores.json')) return JSON.stringify(DEFAULT_SCORES);
-    return '{}';
-  });
-  fs.writeFileSync.mockImplementation(() => {});
-  fs.mkdirSync.mockImplementation(() => {});
+  jest.clearAllMocks();
+  store.getScores.mockResolvedValue({ ...DEFAULT_SCORES });
+  store.updateScores.mockResolvedValue({ ...DEFAULT_SCORES });
+  store.updateLeaderboard.mockResolvedValue();
+  store.getUser.mockResolvedValue(null);
+  store.createUser.mockResolvedValue();
 
   hashPassword.mockResolvedValue('hashed_password');
   comparePassword.mockResolvedValue(true);
   signToken.mockReturnValue('mock_token');
-});
-
-afterEach(() => {
-  jest.clearAllMocks();
 });
 
 // ─── POST /api/auth/register ──────────────────────────────────────────────────
@@ -51,12 +50,7 @@ describe('POST /api/auth/register', () => {
   });
 
   it('returns 409 when username is already taken', async () => {
-    fs.readFileSync.mockImplementation((filePath) => {
-      if (filePath.includes('users.json')) {
-        return JSON.stringify({ alice: { passwordHash: 'hashed' } });
-      }
-      return JSON.stringify(DEFAULT_SCORES);
-    });
+    store.getUser.mockResolvedValue({ passwordHash: 'hashed' });
     const res = await request(app).post('/api/auth/register').send({ username: 'alice', password: 'pass123' });
     expect(res.status).toBe(409);
     expect(res.body.error).toMatch(/taken/i);
@@ -68,13 +62,9 @@ describe('POST /api/auth/register', () => {
     expect(res.body).toEqual({ token: 'mock_token', username: 'alice' });
   });
 
-  it('saves hashed password to users file', async () => {
-    let saved = {};
-    fs.writeFileSync.mockImplementation((filePath, data) => {
-      if (filePath.includes('users.json')) saved = JSON.parse(data);
-    });
+  it('saves hashed password via store.createUser', async () => {
     await request(app).post('/api/auth/register').send({ username: 'alice', password: 'pass123' });
-    expect(saved.alice).toHaveProperty('passwordHash', 'hashed_password');
+    expect(store.createUser).toHaveBeenCalledWith('alice', 'hashed_password');
   });
 
   it('trims whitespace from username', async () => {
@@ -88,12 +78,7 @@ describe('POST /api/auth/register', () => {
 
 describe('POST /api/auth/login', () => {
   beforeEach(() => {
-    fs.readFileSync.mockImplementation((filePath) => {
-      if (filePath.includes('users.json')) {
-        return JSON.stringify({ alice: { passwordHash: 'hashed' } });
-      }
-      return JSON.stringify(DEFAULT_SCORES);
-    });
+    store.getUser.mockResolvedValue({ passwordHash: 'hashed' });
   });
 
   it('returns 400 when username is missing', async () => {
@@ -109,6 +94,7 @@ describe('POST /api/auth/login', () => {
   });
 
   it('returns 401 when username does not exist', async () => {
+    store.getUser.mockResolvedValue(null);
     const res = await request(app).post('/api/auth/login').send({ username: 'unknown', password: 'pass123' });
     expect(res.status).toBe(401);
     expect(res.body.error).toMatch(/invalid/i);
@@ -131,41 +117,22 @@ describe('POST /api/auth/login', () => {
 // ─── POST /api/scores — token-based leaderboard ───────────────────────────────
 
 describe('POST /api/scores — token-based leaderboard update', () => {
-  const { verifyToken } = require('../auth');
-
   beforeEach(() => {
     verifyToken.mockReturnValue({ username: 'alice' });
   });
 
-  it('updates leaderboard using verified token and symbol', async () => {
-    let savedLeaderboard = {};
-    fs.readFileSync.mockImplementation((filePath) => {
-      if (filePath.includes('leaderboard.json')) return JSON.stringify(savedLeaderboard);
-      if (filePath.includes('users.json')) return JSON.stringify({});
-      return JSON.stringify(DEFAULT_SCORES);
-    });
-    fs.writeFileSync.mockImplementation((filePath, data) => {
-      if (filePath.includes('leaderboard.json')) savedLeaderboard = JSON.parse(data);
-    });
-
+  it('calls store.updateLeaderboard using verified token and symbol', async () => {
     await request(app)
       .post('/api/scores')
       .send({ winner: 'X', token: 'mock_token', symbol: 'X' });
-
-    expect(savedLeaderboard.alice).toMatchObject({ wins: 1 });
+    expect(store.updateLeaderboard).toHaveBeenCalledWith('X', { X: 'alice', O: null });
   });
 
   it('skips leaderboard update when token is invalid', async () => {
     verifyToken.mockImplementation(() => { throw new Error('invalid'); });
-    let leaderboardWritten = false;
-    fs.writeFileSync.mockImplementation((filePath) => {
-      if (filePath.includes('leaderboard.json')) leaderboardWritten = true;
-    });
-
     await request(app)
       .post('/api/scores')
       .send({ winner: 'X', token: 'bad_token', symbol: 'X' });
-
-    expect(leaderboardWritten).toBe(false);
+    expect(store.updateLeaderboard).not.toHaveBeenCalled();
   });
 });
